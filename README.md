@@ -4,3 +4,8 @@ Aplicación web para liquidar procedimientos médicos, quirúrgicos y hospitalar
 Leer el archivo Memoria_CharlesTorres.pdf:
 
 https://github.com/charlesrct/liquidador_de_cirugias/blob/master/Memoria_CharlesTorres.pdf
+
+Video demo de funcionamiento:
+
+https://www.youtube.com/watch?v=zSN03HCv-xs
+
