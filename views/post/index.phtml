@@ -1,0 +1,27 @@
+<h2>Ultimos Posts</h2>
+
+<?php if (isset($this->posts) && count($this->posts)) : //Pinta la tabla si hay por lo menos 1 registro ?>
+
+    <table>
+
+        <?php for ($i = 0; $i < count($this->posts); $i++): ?>
+
+            <tr>
+                <td><?php echo $this->posts[$i]['id']; ?></td>
+                <td><?php echo $this->posts[$i]['titulo']; ?></td>
+                <td><?php echo $this->posts[$i]['cuerpo']; ?></td>
+                <td><a href="<?php echo BASE_URL . 'post/editar/' . $this->posts[$i]['id']; ?>">Editar</a></td>
+                <td><a href="<?php echo BASE_URL . 'post/eliminar/' . $this->posts[$i]['id']; ?>">Eliminar</a></td>
+            </tr>
+
+        <?php endfor; ?>
+    </table>
+
+<?php else: ?>
+
+    <p><strong>No hay posts!</strong></p>
+
+<?php endif; ?>
+
+
+<p><a href="<?php BASE_URL; ?>post/nuevo">Agregar Post</a></p>

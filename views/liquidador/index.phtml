@@ -1,0 +1,372 @@
+<table width="90%" border="0"  cellspacing="0" cellpadding="0" align="center">
+    <tr>
+        <td>
+            <div id="ocultar_liquida">
+                <table width="100%" border="0"  cellspacing="0" cellpadding="0" align="center">
+                    <tr>
+                        <td colspan="8" class="label" style="text-align: center;">
+                            <?PHP echo SERV_LIQUIDA; ?>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td colspan="8">
+                            &nbsp;
+                        </td>
+                    </tr>
+                    <tr >
+                        <td colspan="4">
+                            <div class="label" style="text-align: center;">
+                                <?PHP
+                                echo PACIENTE;
+                                ?>
+                            </div>
+                        </td>
+                        <td colspan="4">
+                            <input id="c_paciente" placeholder="Digite el documento o nombre del paciente." autofocus size="72" type="text" onclick="SelectTextCampo(this.id)">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="label" style="text-align: center;">
+                                <?PHP
+                                echo TARIFARIO;
+                                ?>
+                            </div>
+                        </td>
+                        <td colspan="2">
+                            <select name="c_tarifario" id="c_tarifario" class="cajas" style="width:180">
+                                <option value="-1">Seleccion..</option>
+                                <option value="1">SOAT</option>
+                                <option value="2">ISS 256 AÑO 2001</option>
+                                <option value="3">ISS 312 AÑO 2004</option>
+                            </select>
+                        <td colspan="2">
+                            <div id="anual_titulo" class="label" style="text-align: center; display: none;">
+                                <?PHP
+                                echo ANIO;
+                                ?>    
+                            </div>
+                        </td>
+                        <td colspan="2">
+                            <div id="anual_select" style="display: none;">
+                                <select name="c_anual" id="c_anual" class="cajas" onchange="" style="width: 100px">
+                                    <?php
+                                    for ($i = 0; $i < count($this->sel_anual); $i++):
+                                        ?>
+                                        <option value="<?php echo $this->sel_anual[$i]['anual']; ?>">
+                                            <?php echo $this->sel_anual[$i]['anual']; ?>
+                                        </option>
+                                        <?php
+                                    endfor;
+                                    ?>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <div class="label" style="text-align: center;">
+                                <?php
+                                echo PROCEDIMIENTO;
+                                ?>
+                            </div>
+                        </td>
+                        <td colspan="4">
+                            <input id="c_procedimiento" placeholder="Digite el código o nombre del procedimiento." size="72" type="text" onclick="SelectTextCampo(this.id)">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" width="120">
+                            <div class="label" style="text-align: center;" >
+                                <?php
+                                echo VIA_ACCESO;
+                                ?>
+                            </div>
+                        </td>
+                        <td colspan="2">
+                            <select name="c_via_acceso" id="c_via_acceso" class="cajas" style="width:180">
+                                <option value="-1">Seleccion..</option>
+                                <option value="1">Unica Via</option>
+                                <option value="2">Misma Via</option>
+                                <option value="3">Diferente Via</option>
+                            </select>
+                        </td>
+                        <td colspan="2">
+                            <div class="label" style="text-align: center;">
+                                <?php
+                                echo ESPECIALISTA;
+                                ?>
+                            </div>
+                        </td>
+                        <td colspan="2">
+                            <select name="especialista" id="especialista" class="cajas" style="width:180">
+                                <option value="-1">Seleccion..</option>
+                                <option value="1">Mismo Especialista</option>
+                                <option value="2">Diferente Especialista</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div id="ver_tipo_qx" class="label" style="text-align: center; display: none;">
+                                <?php
+                                echo TIPO_CIRUGIA;
+                                ?>
+                            </div>
+                        </td>
+                        <td colspan="2">
+                            <select name="c_tipo_qx" id="c_tipo_qx" class="cajas" onchange="" style="width:180; display: none;">
+                                <option value="-1">Seleccion..</option>
+                                <!-- <option value="1">Unilateral</option>-->
+                                <option value="1">Bilatera</option>
+                                <option value="2">Multiple</option>
+                            </select>
+                        </td>
+                        <td colspan="2">
+                            <div id="ver_titulo_cirugia1" class="label" style="text-align: center; display: none;">
+                                <?php
+                                echo CIR_MULTIPLE;
+                                ?>
+                            </div>
+                        </td>
+                        <td colspan="2">
+                            <div id="ver_c_n_cirugia1" style="display: none;">
+                                <select name="c_n_cirugia1" id="c_n_cirugia1" class="cajas" onchange="" style="width:180">
+                                    <option value="0">Seleccion..</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <!--                        <option value="4">Cuarta Vez o Mas</option>-->
+                                </select>
+                            </div>
+                            <div id="ver_c_n_cirugia" style="display: none;">
+                                <select name="c_n_cirugia" id="c_n_cirugia" class="cajas" onchange="" style="width:180">
+                                    <!--                                    <option value="-1">Seleccion..</option>-->
+                                    <option value="1">Primera</option>
+                                    <option value="2">Segunda</option>
+                                    <option value="3">Tercera</option>
+                                    <!--                        <option value="4">Cuarta Vez o Mas</option>-->
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="text" id="c_id_liquidacion" name="c_id_liquidacion" value="<?php //echo $liq;                              ?>" style="display:none;"/>
+                        </td>
+                    </tr>
+                    <tr>  
+                        <td colspan="8" style="text-align: center;">
+                            <input type="button" id="Busca" value="<?PHP echo BUSCAR; ?>"  onclick="BuscarServicios();" class="button" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="10">
+                            <table>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                    <td colspan="4">
+                                        <div id="resultado_datos"></div>
+                                        <div id="Div_Servicos"></div>
+                                    </td>
+                                    <td>&nbsp; <input type="hidden" id="Aray"  />
+                                        <input type="hidden" id="Cadena" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                    <td colspan="4">
+                                        <div id="Div_Lista"></div>
+                                    </td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr align="center">
+                        <td colspan="8" style="text-align: center;">
+                            <div id="muestra_liquidar" style="display: none;">
+                                <input type="button" id="Liquida" onclick="Liquidar();" value="<?php echo LIQUIDAR; ?>" class="button" />
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="mostrar_guarda1" style="text-align: center; display: none;">
+                <hr>
+                <input type="button" id="factura_Liquida" onclick="factura_condiciones();" value="<?php echo FACTURAR_LIQUIDACION; ?>" class="button" />
+                <input type="hidden" id="liquidado" value="no" />
+            </div>
+        </td>
+    </tr>
+
+    <tr align="center">
+        <td align="center">
+            <!--******************************************+-->
+            <div id="mostrar_condiciones" style="display: none;">
+                <script type="text/javascript" language="javascript" src="<?php echo BASE_URL; ?>public/js/facturacion.js"></script>
+
+                <table width="100%" cellspacing="0" cellpadding="0" class="BorderTemplate_2 TexList">
+                    <tr bgcolor="#FFFFFF">
+                        <td colspan="3" class="label" style="text-align: center;">
+                            <?PHP
+                            echo PRODUCTOS_FACTURAR;
+                            ?>
+                        </td>
+                    </tr>
+                    <tr bgcolor="#FFFFFF">
+                        <td width="40%" style="vertical-align: middle">
+                            <div id="ver_tipo_qx" class="label" style="text-align: center;">
+                                <?php
+                                echo PRODUCTO;
+                                ?>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="text" class="cajas" size="50" autocomplete="off" id="Buscar_Productos" name="Buscar_Serv" onclick="SelectTextCampo(this.id);"/>
+                            <div id="Busca_product" style="display:inline;">
+                                <input type="button" id="Busca" class="button" value="<?php echo BUSCAR ?>"  onclick="BuscarServicios();" />
+                            </div>
+                            <input type="hidden" id="Aray_p" value=" " >
+                        </td>
+                    </tr>
+                </table>
+                <div id="resultado_datos1"></div>
+                <div id="busca_productos"></div>
+                <div id="agega_productos"></div>
+                <hr>
+                <hr>
+                <table width="100%" cellspacing="0" cellpadding="0" class="BorderTemplate_2 TexList">
+
+                    <tr bgcolor="#FFFFFF">
+                        <td colspan="2" class="label" style="text-align: center;">
+                            <?php
+                            echo CONDICIONES_FACTURACION;
+                            ?>
+                        </td>
+                    </tr>
+                    <tr bgcolor="#FFFFFF">
+                        <td>
+                            <div class="label" style="text-align: center;">
+                                <?php
+                                echo FECHA_FACTURACION;
+                                ?>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="text" id="FechaFac" name="FechaFac" class="cajas cajas_c" value="<?php echo date("Y-m-d") ?>"  disabled="disabled"/> 
+                        </td>
+                    </tr>
+                    <tr bgcolor="#FFFFFF">
+                        <td>
+                            <div class="label" style="text-align: center;">
+                                <?php
+                                echo TERMINO_FACTURACION;
+                                ?>
+                            </div>
+                        </td>
+                        <td>
+                            <select id="termPag" name="termPag" class="cajas">
+                                <option value="xx">Elige...</option>
+                                <?php
+                                for ($i = 0; $i < count($this->term_factura); $i++):
+                                    ?>
+                                    <option value="<?php echo $this->term_factura[$i]['id_t']; ?>">
+                                        <?php echo $this->term_factura[$i]['verbal']; ?>
+                                    </option>
+                                    <?php
+                                endfor;
+                                ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr bgcolor="#FFFFFF">
+                        <td>
+                            <div class="label" style="text-align: center;">
+                                <?php
+                                echo FECHA_VENCIMIENTO;
+                                ?>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="text" class="cajas" name="fechVen" id="fechVen" value="Fecha Vencimiento" disabled="disabled">
+                        </td>
+                    </tr>
+                    <tr bgcolor="#FFFFFF">
+                        <td>
+                            <div class="label" style="text-align: center;">
+                                <?php
+                                echo RETE_FUENTE;
+                                ?>
+                            </div>
+                        </td>
+                        <td>
+                            <select id="retefuente" name="retefuente" class="cajas">
+                                <option value="xx">Elige...</option>
+                                <?php
+                                for ($i = 0; $i < count($this->rete_fuente); $i++):
+                                    ?>
+                                    <option value="<?php echo $this->rete_fuente[$i]['tax_rates_id']; ?>">
+                                        <?php echo $this->rete_fuente[$i]['tax_description']; ?>
+                                    </option>
+                                    <?php
+                                endfor;
+                                ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr bgcolor="#FFFFFF">
+                        <td>
+                            <div class="label" style="text-align: center;">
+                                <?php
+                                echo FORMA_PAGO;
+                                ?>
+                            </div>    
+                        </td>
+                        <td>
+                            <select id="forPag" name="forPag" class="cajas">
+                                <option value="xx">Elige...</option>  
+                                <?php
+                                for ($i = 0; $i < count($this->forma_pago); $i++):
+                                    ?>
+                                    <option value="<?php echo $this->forma_pago[$i]['id']; ?>">
+                                        <?php echo $this->forma_pago[$i]['description']; ?>
+                                    </option>
+                                    <?php
+                                endfor;
+                                ?>
+                            </select>
+                            <div id="error_forPag" style="color:red; font:bold; display: none;" >
+                                "ERROR: Debe seleccionar una forma de pago."
+                            </div>
+                        </td>
+                    </tr>
+                    <tr bgcolor="#FFFFFF" valing="top">
+                        <td valign="top">
+                            <div class="label" style="text-align: center;">
+                                <?php
+                                echo NOTA;
+                                ?>
+                            </div>    
+                        </td>
+                        <td>
+                            <textarea rows="2" cols="30" id="notas" name="notas" class="cajas"></textarea>
+                        </td>
+                    </tr>
+                </table>
+                <div id="oculta_generar" style="text-align: center;">
+                    <input type="button" id="factura_Liquida1" onclick="factura_Liquida();" value="GENERA_FACTURA" class="button" />
+                </div>
+                <div id="resultado_datos2">
+
+                </div>
+                <div>
+                    <input id="invoiceid_div" type="hidden" value=" " >
+                </div>
+            </div>
+            <!--*************************************************-->
+        </td>
+    </tr>
+
+</table>

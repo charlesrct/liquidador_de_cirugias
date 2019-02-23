@@ -1,0 +1,688 @@
+<?php error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); ?>
+<?php
+$Dato = $_GET['Dato'];
+$ajuste = 49; //CONSTANTE PARA AJUSTAR A LA CENTENA SUPERIOR
+$conta_multiples = 0;
+
+//Ordenando los procedimientos de mayor a menor costo..    
+$Resultado1 = explode(',', $Dato);
+//echo '<pre>';
+//print_r($Resultado1);
+//echo '</pre>';
+for ($i = 1; $i < count($Resultado1); $i++) {
+    $Dato_Service = explode('**', $Resultado1[$i]);
+    $Dato_Service1[$i] = $Dato_Service;
+}
+foreach ($Dato_Service1 as $llave => $fila) {
+    $procedimiento[$llave] = $fila[3];
+}
+array_multisort($procedimiento, SORT_DESC, $Dato_Service1);
+$Resultado[0] = " ";
+for ($i = 0; $i < count($Dato_Service1); $i++) {
+    for ($j = 0; $j < count($Dato_Service1[$i]); $j++) {
+        $Resultado[$i + 1] .= $Dato_Service1[$i][$j];
+        if ($j + 1 < count($Dato_Service1[$i])) {
+            $Resultado[$i + 1] .= '**';
+        }
+    }
+}
+//echo '<pre>';
+//print_r($Resultado);
+//echo '</pre>';
+//fin orden por valor de los servicios
+?>
+<hr>
+<table table width="100%" border="0"  cellspacing="0" cellpadding="0" align="center">
+    <tr>
+        <td style="text-align: center">
+            SERVICIOS A LIQUIDAR. TARIFARIO <?php echo ' ' . $_REQUEST["Tarifario"]; ?>
+        </td>
+    </tr>
+</table>
+<div id="mostrar_guarda" style="display:none;">
+    <hr>
+    <input type="button" id="factura_Liquida" onclick="factura_condiciones();" value=".: FACTURAR LIQUIDACION :." class="button" />
+    <input type="hidden" id="liquidado" value="no" />
+</div>
+
+<table table width="100%" border="0"  cellspacing="0" cellpadding="0" align="center" class="cuerpo_tabla" style="font-size: 12px">
+    <tr>
+        <td class="label">
+            No.
+        </td>
+        <td class="label">
+            Codigo
+        </td>
+        <td class="label" style="min-width: 160px;">
+            Descripcion
+        </td>
+        <?php
+        if ($_REQUEST["Tarifario"] == "SOAT") {
+        ?>
+        <td class="label">
+            Grupo Quirurg.
+        </td>
+        <?php
+        }
+        ?>
+        <td class="label">
+            Especialista
+        </td>    
+        <?php
+        if ($_REQUEST["Tarifario"] == "ISS" && $_REQUEST["anio"] == "2004") {
+        ?>
+        <td class="label">
+            Medico Odontologo General
+        </td> 
+        <?php
+        } else {
+        ?>
+        <td class="label">
+            Anestesiologo
+        </td>
+        <td class="label">
+            Ayudante
+        </td>
+        <?php
+        }
+        ?>
+        <td class="label">
+            Suma         
+        </td>
+        <td class="label" style="text-align: center">
+            <button type="button" id="Elimina" title="Eliminar de la lista" onclick="Elimina();" class="button" ><img src="public/img/EliminarJVM.png" width="20" border="0" /></button><br><input type="checkbox" id="ID_Todos_eli" name="ID_Todos_eli" title="Selecciona Todos..."  onclick="Selecionar_Todo(1);" />
+        </td>
+    </tr>
+
+    <?php
+    for ($i = 1; $i < count($Resultado); $i++):
+    $Dato_Service = explode('**', $Resultado[$i]);
+
+    if ($Dato_Service[6] == 2) {
+        $conta_multiples++;
+        $Dato_Service[7] = $conta_multiples;
+    }
+    $op_liquida[$i] = ($Dato_Service[6] . ";" . $Dato_Service[7] . ";" . $Dato_Service[8] . ";" . $Dato_Service[9]);
+    $pesos_suma = 0;
+
+    $cosult = new liquidadorController();
+    $Servicios_Lista = $cosult->consultar_procedimiento($Dato_Service[0]);
+
+    //*******************************+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //echo('<pre>');
+    //print_r($Servicios_Lista);
+    //CAMBIANDO COMA POR PUNTO DECIMAL
+    //for ($i = 0; $i < count($Servicios_Lista); $i++){
+    //    $Servicios_Lista[$i] = str_replace(',', '.', $Servicios_Lista[$i]);
+    //}
+    //print_r($Servicios_Lista);
+
+    ?>
+
+    <tr>
+        <td style="text-align: center">
+            <?PHP echo $i ?>
+            <input type="hidden" id="Servis_id_<?PHP echo $i ?>" value="<?PHP echo $Servicios_Lista[0]['idliquidador_tarifario'] ?>" />
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $Servicios_Lista[0]['codigo'] ?>
+            <input type="hidden" id="cups_procedimiento_<?PHP echo $i ?>" value="<?PHP echo $Servicios_Lista[0]['codigo'] ?>" />
+        </td>
+        <td>
+            <?PHP echo $Servicios_Lista[0]['descripcion']; ?>
+        </td>
+        <?php
+        if ($_REQUEST["Tarifario"] == "SOAT") {
+        ?>
+        <td style="text-align: center">
+            <?PHP echo $Servicios_Lista[0]['grupo_quirurgico']; ?>
+            <input type="hidden" id="grupo_quirurgico_<?PHP echo $i ?>" value="<?PHP echo $Servicios_Lista[0]['grupo_quirurgico']; ?>" />
+        </td>
+        <?php
+        }
+        ?>
+
+        <!--CELDA RESULTADO ESPECIALISTA-->
+        <td style="text-align: center">
+            <div id="cel_especialista_<?PHP echo $i ?>">
+                <?PHP
+    if ($_REQUEST["Tarifario"] == "ISS" && $_REQUEST["anio"] == "2001" && $Servicios_Lista[0]['unidad_liquidacion'] == "UVR") {
+        $pesos_epecialista = ($Servicios_Lista[0]['suma'] * 1270);  //ESPECIALISTA: UVR * 1270
+    } else {
+        $pesos_epecialista = 0;  //ESPECIALISTA: UVR * 1270
+    }
+                 if ($_REQUEST["Tarifario"] == "ISS" && $_REQUEST["anio"] == "2004") {
+                     $pesos_epecialista = ( $Dato_Service[4] * 100);  //ESPECIALISTA: UVR * 100
+                 }
+                 if ($_REQUEST["Tarifario"] == "SOAT") {
+                     $anio_soat = $cosult->consultar_valor_smdlv($_REQUEST['anio_smlv']);
+                     $pesos_epecialista = ($Servicios_Lista[0]['especialista'] * $anio_soat[0]['valor_smdlv']);
+                 }//fIN IF PARA ESPECIALISTA SOAT
+                 echo "$" . round($pesos_epecialista + $ajuste, -2);
+                ?>
+            </div>
+            <input type="hidden" id="anio_soat_<?PHP echo $i ?>" value="<?PHP echo $anio_soat[0]['valor_smdlv']; ?>" />
+            <input type="hidden" id="especialista_<?PHP echo $i ?>" value="<?PHP echo $pesos_epecialista; ?>" />
+        </td>
+        <?php
+        if ($_REQUEST["Tarifario"] == "ISS" && $_REQUEST["anio"] == "2004") {
+        ?>
+        <!-- CELDA RESULTADO MEDICO ODONTOLOGO GENERAL-->
+        <td style="text-align: center">
+            <div id="cel_med_odonto_general_<?PHP echo $i ?>">
+                <?php
+            $pesos_med_odonto_general = ($Dato_Service[5] * 100);
+            echo "$" . round($pesos_med_odonto_general + $ajuste, -2);
+                ?>
+            </div>
+            <input type="hidden" id="med_odonto_general_<?PHP echo $i ?>" value="<?PHP echo $pesos_med_odonto_general; ?>" />
+            <?php $pesos_anestesiologo = 0; ?>
+            <input type="hidden" id="anestesiologo_<?PHP echo $i ?>" value="<?PHP echo $pesos_anestesiologo; ?>" />
+            <?php $pesos_ayudante = 0; ?>
+            <input type="hidden" id="ayudante_<?PHP echo $i ?>" value="<?PHP echo $pesos_ayudante; ?>" />
+        </td>
+        <?php
+        } else {
+        ?>
+        <!--            CELDA RESULTADO ANESTESIOLOGO-->
+        <td style="text-align: center">
+            <div id="cel_anestesiologo_<?PHP echo $i ?>">
+
+                <?PHP
+            if ($_REQUEST["Tarifario"] == "ISS" && $_REQUEST["anio"] == "2001" && $Servicios_Lista[0]['unidad_liquidacion'] == "UVR") {
+                $pesos_anestesiologo = ($Servicios_Lista[0]['suma'] * 960);  //ANESTESIOLOGO: UVR * 960
+            } else {
+                $pesos_anestesiologo = 0;  //
+            }
+            if ($_REQUEST["Tarifario"] == "SOAT") {
+                $pesos_anestesiologo = ($Servicios_Lista[0]['anestesiologo'] * $anio_soat[0]['valor_smdlv']);
+            }
+            echo "$" . round($pesos_anestesiologo + $ajuste, -2);
+                ?>
+            </div>
+            <input type="hidden" id="anestesiologo_<?PHP echo $i ?>" value="<?PHP echo $pesos_anestesiologo; ?>" />
+            <?php $pesos_med_odonto_general = 0; ?>
+            <input type="hidden" id="med_odonto_general_<?PHP echo $i ?>" value="<?PHP echo $pesos_med_odonto_general; ?>" />
+        </td>
+        <!--            CELDA RESULTADO AYUDANTE-->
+        <td style="text-align: center">
+            <div id="cel_ayudante_<?PHP echo $i ?>">
+                <?PHP
+                    if ($_REQUEST["Tarifario"] == "ISS" && $_REQUEST["anio"] == "2001" && $Servicios_Lista[0]['unidad_liquidacion'] == "UVR") {
+                        $pesos_ayudante = ($Servicios_Lista[0]['suma'] * 360);  //AYUDANTE: UVR * 360
+                    } else {
+                        $pesos_ayudante = 0;  //
+                    }
+            if ($_REQUEST["Tarifario"] == "SOAT") {
+                $pesos_ayudante = ($Servicios_Lista[0]['ayudante'] * $anio_soat[0]['valor_smdlv']);
+            }
+            echo "$" . round($pesos_ayudante + $ajuste, -2);
+                ?>
+            </div>
+            <input type="hidden" id="ayudante_<?PHP echo $i ?>" value="<?PHP echo $pesos_ayudante; ?>" />
+        </td> 
+        <?php
+        }
+        ?>
+        <!--            CELDA RESULTADO ESPECIALISTA + ANESTESIOLOGO + AYUDANTE + med_odonto_general-->
+        <td style="text-align: center">
+            <div id="cel_pesos_suma_<?PHP echo $i ?>">
+                <?PHP
+    //$pesos_suma = round($pesos_anestesiologo + $ajuste, -2) + round($pesos_epecialista + $ajuste, -2) + round($pesos_ayudante + $ajuste, -2) + round($pesos_med_odonto_general + $ajuste, -2);
+    $pesos_suma = round($pesos_anestesiologo + $pesos_epecialista + $pesos_ayudante + $pesos_med_odonto_general + $ajuste, -2);
+    $pesos_suma1 = $pesos_anestesiologo + $pesos_epecialista + $pesos_ayudante + $pesos_med_odonto_general;
+
+                 if ($pesos_suma == 0) { //SUMA PARA TARIFARIO SOAT EN CASO DE SOLO TENER VALOR TOTAL...
+                     $pesos_suma = ($Servicios_Lista[0]['suma'] * $anio_soat[0]['valor_smdlv']);
+                 }
+                 if ($_REQUEST["Tarifario"] == "ISS" && $_REQUEST["anio"] == "2001" && $Servicios_Lista[0]['unidad_liquidacion'] == "PESOS") {
+                     $pesos_suma = $Servicios_Lista[0]['suma'];  //
+                 }
+                 if ($_REQUEST["Tarifario"] == "ISS" && $_REQUEST["anio"] == "2004" && $pesos_suma == 0) {
+                     $pesos_suma = $Servicios_Lista[0]['suma'] * 100;
+                 }
+                 echo "$" . round($pesos_suma + $ajuste, -2);
+                ?>
+            </div>
+            <input type="hidden" id="pesos_suma_<?PHP echo $i ?>" value="<?PHP echo $pesos_suma; ?>" />
+            <input type="hidden" id="op_liquida_<?PHP echo $i ?>" value="<?PHP echo $op_liquida[$i]; ?>" />
+        </td>
+
+        <td style="text-align: center">
+            <input type="checkbox" id="Eliminar_<?PHP echo $i ?>"  class="All_eli" />
+        </td>
+    </tr>
+    <!--*************************************************
+****   SI ES SOAT MOSTRAMOS LA SALA Y LOS MATERIALES DEL GRUPO QUIRURGICO -->
+    <?php
+    $pesos_tipo_sala = 0;
+                   $pesos_tipo_mat = 0;
+                   if ($_REQUEST["Tarifario"] == "SOAT" && ($Servicios_Lista[0]['especialista'] + $Servicios_Lista[0]['anestesiologo'] + $Servicios_Lista[0]['ayudante']) != 0) {
+                       $tipo_sala = $cosult->consultar_sala($Dato_Service[1]);
+                       $tipo_mat = $cosult->consultar_materiales($Dato_Service[2]);
+    ?>
+    <!--MOSTRAMOS EN PANTALLA LA SALA DEL GRUPO QUIRURGICO PARA TARIFARIO SOAT-->
+    <tr>
+        <td style="text-align: center">
+            <?PHP //echo $i              ?>
+            <input type="hidden" id="Sala_id_<?PHP echo $i ?>" value="<?PHP echo $tipo_sala[0]['idliquidador_tarifario'] ?>" />
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $tipo_sala[0]['codigo'] ?>
+        </td>
+        <td>
+            <?PHP echo $tipo_sala[0]['descripcion'] ?>
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $tipo_sala[0]['grupo_quirurgico'] ?>
+        </td>
+        <td style="text-align: center">
+            0
+            <input type="hidden" id="sala_especialista_<?PHP echo $i ?>" value="0" />
+        </td>
+        <td style="text-align: center">
+            0
+            <input type="hidden" id="sala_anestesiologo_<?PHP echo $i ?>" value="0" />
+        </td>
+        <td style="text-align: center">
+            0
+            <input type="hidden" id="sala_ayudante_<?PHP echo $i ?>" value="0" />
+        </td>        
+        <!-- CELDA PARA MOSTRAR EL VALOR DE LA SALA-->
+        <td style="text-align: center">
+            <div id="cel_sala_suma_<?PHP echo $i ?>">
+                <?PHP
+        $pesos_tipo_sala = ($tipo_sala[0]['suma'] * $anio_soat[0]['valor_smdlv']);
+                       echo "$" . round($pesos_tipo_sala + $ajuste, -2);
+                ?>
+            </div>
+            <input type="hidden" id="sala_suma_<?PHP echo $i ?>" value="<?PHP echo $pesos_tipo_sala; ?>" />
+        </td>        
+        <td>
+        </td>
+    </tr>
+    <!--MOSTRAMOS EN PANTALLA LOS MATERIALES DEL GRUPO QUIRURGICO PARA TARIFARIO SOAT-->
+    <?PHP
+                       //VALIDAMOS SI EL PROCEDIMIENTO TIENE MATERIALES
+                       if ($tipo_mat[0]['idliquidador_tarifario'] != "") {
+    ?>
+    <tr>
+        <td style="text-align: center">
+            <?PHP //echo $i                ?>
+            <input type="hidden" id="Matariales_id_<?PHP echo $i ?>" value="<?PHP echo $tipo_mat[0]['idliquidador_tarifario'] ?>" />
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $tipo_mat[0]['codigo']; ?>
+        </td>
+        <td>
+            <?PHP echo $tipo_mat[0]['descripcion']; ?>
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $tipo_mat[0]['grupo_quirurgico']; ?>
+        </td>
+        <td style="text-align: center">
+            0
+            <input type="hidden" id="material_especialista_<?PHP echo $i ?>" value="0" />
+        </td>
+        <td style="text-align: center">
+            0
+            <input type="hidden" id="material_anestesiologo_<?PHP echo $i ?>" value="0" />
+        </td>
+        <td style="text-align: center">
+            0
+            <input type="hidden" id="material_ayudante_<?PHP echo $i ?>" value="0" />
+        </td>        
+        <!--CELDA PARA MOSTRAR EL VALOR TOTAL DE LOS MATERIALES-->
+        <td style="text-align: center">
+            <div id="cel_material_suma_<?PHP echo $i ?>">
+                <?PHP
+        $pesos_tipo_mat = ($tipo_mat[0]['suma'] * $anio_soat[0]['valor_smdlv']);
+                           echo "$" . round($pesos_tipo_mat + $ajuste, -2);
+                ?>
+            </div>
+            <input type="hidden" id="material_suma_<?PHP echo $i ?>" value="<?php echo $pesos_tipo_mat; ?>" />
+        </td> 
+        <td>
+        </td>
+    </tr>
+    <?PHP
+                       } else {
+                           $pesos_tipo_mat = 0;
+    ?>
+    <input type="hidden" id="Matariales_id_<?PHP echo $i ?>" value="<?PHP echo $tipo_mat[0]['idliquidador_tarifario'] ?>" />
+    <input type="hidden" id="material_suma_<?PHP echo $i ?>" value="<?php echo $pesos_tipo_mat; ?>" />
+    <?php
+                       }//Fin de materiales
+                   } elseif ($_REQUEST["Tarifario"] == "ISS" && $_REQUEST["anio"] == "2001") {
+                       #fin del if SOAT para materiales y sala
+                       //            <!--*************************************************
+                       //            ****   SI ES ISS 2001 MOSTRAMOS LA SALA Y LOS MATERIALES SEGUN EL RANGO DE UVR -->
+                       $pesos_tipo_sala = 0;
+                       $pesos_tipo_mat = 0;
+
+                       list($tipo_mat, $tipo_sala) = $cosult->consultar_2001($Dato_Service[2], $Dato_Service[1]);
+
+                       if ($Dato_Service[1] != "undefined") {   //Validando si existe sala para ese procedimiento
+    ?>
+    <!--MOSTRAMOS EN PANTALLA LA SALA SEGUN RANGO DE UVR PARA ISS 2001-->
+    <tr>
+        <td style="text-align: center">
+            <?PHP //echo $i                 ?>
+            <input type="hidden" id="Sala_id_<?PHP echo $i ?>" value="<?PHP echo $tipo_sala[0]['idliquidador_tarifario'] ?>" />
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $tipo_sala[0]['codigo'] ?>
+        </td>
+        <td>
+            <?PHP echo $tipo_sala[0]['tipo'] . " " . $tipo_sala[0]['descripcion'] ?>
+        </td>
+        <td style="text-align: center">
+            0
+            <input type="hidden" id="sala_especialista_<?PHP echo $i ?>" value="0" />
+        </td>
+        <td style="text-align: center">
+            0
+            <input type="hidden" id="sala_anestesiologo_<?PHP echo $i ?>" value="0" />
+        </td>
+        <td style="text-align: center">
+            0
+            <input type="hidden" id="sala_ayudante_<?PHP echo $i ?>" value="0" />
+        </td>        
+        <!-- CELDA PARA MOSTRAR EL VALOR DE LA SALA-->
+        <td style="text-align: center">
+            <div id="cel_sala_suma_<?PHP echo $i ?>">
+                <?PHP
+        $pesos_tipo_sala = ($tipo_sala[0]['suma']);
+                           echo "$" . round($pesos_tipo_sala + $ajuste, -2);
+                ?>
+            </div>
+            <input type="hidden" id="sala_suma_<?PHP echo $i ?>" value="<?PHP echo $pesos_tipo_sala; ?>" />
+        </td>        
+        <td></td>
+    </tr>
+    <?php
+                       } else {
+                           $pesos_tipo_sala = 0;
+    ?>
+    <input type="hidden" id="sala_suma_<?PHP echo $i ?>" value="<?PHP echo $pesos_tipo_sala; ?>" />
+    <?php
+                       }
+                       if ($Dato_Service[2] != "undefined") {    //Validando si existen matariales para ese procedimiento
+    ?>
+    <!--MOSTRAMOS EN PANTALLA LOS MATERIALES segun el rango de uvr ISS 2001-->
+    <tr>
+        <td style="text-align: center">
+            <?PHP //echo $i                  ?>
+            <input type="hidden" id="Matariales_id_<?PHP echo $i ?>" value="<?PHP echo $tipo_mat[0]['idliquidador_tarifario'] ?>" />
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $tipo_mat[0]['codigo']; ?>
+        </td>
+        <td>
+            <?PHP echo $tipo_mat[0]['tipo'] . " " . $tipo_mat[0]['descripcion']; ?>
+        </td>
+        <td style="text-align: center">
+            0
+            <input type="hidden" id="material_especialista_<?PHP echo $i ?>" value="0" />
+        </td>
+        <td style="text-align: center">
+            0
+            <input type="hidden" id="material_anestesiologo_<?PHP echo $i ?>" value="0" />
+        </td>
+        <td style="text-align: center">
+            0
+            <input type="hidden" id="material_ayudante_<?PHP echo $i ?>" value="0" />
+        </td>        
+        <!--CELDA PARA MOSTRAR EL VALOR TOTAL DE LOS MATERIALES-->
+        <td style="text-align: center">
+            <div id="cel_material_suma_<?PHP echo $i ?>">
+                <?PHP
+        $pesos_tipo_mat = ($tipo_mat[0]['suma']);
+                           echo "$" . round($pesos_tipo_mat + $ajuste, -2);
+                ?>
+            </div>
+            <input type="hidden" id="material_suma_<?PHP echo $i ?>" value="<?php echo $pesos_tipo_mat; ?>" />
+        </td> 
+        <td>
+        </td>
+    </tr>
+
+    <?PHP
+                       } else {
+                           $pesos_tipo_mat = 0;
+    ?>
+    <input type="hidden" id="material_suma_<?PHP echo $i ?>" value="<?php echo $pesos_tipo_mat; ?>" />
+    <?php
+                       }
+                   }#FIN ELSEIF - fin del iss 2001 para materiales y sala
+                   elseif ($_REQUEST["Tarifario"] == "ISS" && $_REQUEST["anio"] == "2004") {
+                       //            <!--*************************************************
+                       //            ****   SI ES ISS 2004 MOSTRAMOS LOS MATERIALES SEGUN EL RANGO DE UVR -->
+                       $pesos_tipo_sala = 0;
+                       $pesos_tipo_mat = 0;
+
+                       $tipo_mat = $cosult->consultar_2004($Dato_Service[2]);
+
+                       if ($Dato_Service[2] != "undefined") {    //Validando si existen matariales para ese procedimiento
+    ?>
+    <!--MOSTRAMOS EN PANTALLA LOS MATERIALES segun el rango de uvr ISS 2004-->
+    <tr>
+        <td style="text-align: center">
+            <?PHP //echo $i                 ?>
+            <input type="hidden" id="Matariales_id_<?PHP echo $i ?>" value="<?PHP echo $tipo_mat[0]['idliquidador_tarifario'] ?>" />
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $tipo_mat[0]['codigo']; ?>
+        </td>
+        <td>
+            <?PHP echo $tipo_mat[0]['tipo'] . " " . $tipo_mat[0]['descripcion']; ?>
+        </td>
+        <td style="text-align: center">
+            0
+            <input type="hidden" id="material_especialista_<?PHP echo $i ?>" value="0" />
+        </td>
+        <td style="text-align: center">
+            0
+            <input type="hidden" id="material_odontologo_<?PHP echo $i ?>" value="0" />
+        </td>
+        <!--CELDA PARA MOSTRAR EL VALOR TOTAL DE LOS MATERIALES-->
+        <td style="text-align: center">
+            <div id="cel_material_suma_<?PHP echo $i ?>">
+                <?PHP
+        $pesos_tipo_mat = ($tipo_mat[0]['suma'] * 100);
+                           echo "$" . round($pesos_tipo_mat + $ajuste, -2);
+                ?>
+            </div>
+            <input type="hidden" id="material_suma_<?PHP echo $i ?>" value="<?php echo $pesos_tipo_mat; ?>" />
+            <?php
+                           $pesos_tipo_sala = 0;
+            ?>
+            <input type="hidden" id="sala_suma_<?PHP echo $i ?>" value="<?php echo $pesos_tipo_sala; ?>" />
+        </td> 
+        <td></td>
+    </tr>
+
+    <?PHP
+                       } else {
+                           $pesos_tipo_mat = 0;
+                           $pesos_tipo_sala = 0;
+    ?>
+    <input type="hidden" id="material_suma_<?PHP echo $i ?>" value="<?php echo $pesos_tipo_mat; ?>" />
+    <input type="hidden" id="sala_suma_<?PHP echo $i ?>" value="<?php echo $pesos_tipo_sala; ?>" />
+    <?php
+                       }
+                   }#FIN ELSEIF - fin del iss 2004 para materiales
+                   else {
+    ?>
+    <input type="hidden" id="sala_suma_<?PHP echo $i ?>" value="0" />
+    <input type="hidden" id="material_suma_<?PHP echo $i ?>" value="0" />
+    <?php
+                   }
+    ?>
+    <tr>
+        <td style="text-align: right" 
+            <?PHP
+            //VERIFICAMOS SI EL TARIFARIO ES SOAT O ISS PARA MODIFICAR LA CANTIDAD DE COLUMNAS DE LA TABLA
+            if ($_REQUEST["Tarifario"] == "SOAT") {
+                echo 'colspan="7"';
+            }
+            if ($_REQUEST["Tarifario"] == "ISS") {
+                if ($_REQUEST["anio"] == "2001") {
+                    echo 'colspan="6"';
+                }
+                if ($_REQUEST["anio"] == "2004") {
+                    echo 'colspan="5"';
+                }
+            }
+            ?>>
+            <strong> SubTotal: </strong>
+        </td>
+        <td style="text-align: center">
+            <div id="cel_SubTotal_<?PHP echo $i ?>">
+                <?PHP //echo "$" . number_format(round($pesos_suma + $ajuste, -2) + round($pesos_tipo_sala + $ajuste, -2) + round($pesos_tipo_mat + $ajuste, -2)); ?>
+                <?PHP echo "$" . number_format(round($pesos_suma1 + $pesos_tipo_sala + $pesos_tipo_mat + $ajuste, -2) ); ?>
+            </div>
+            <input type="hidden" id="SubTotal_<?PHP echo $i ?>" value="<?PHP echo ($pesos_suma + $pesos_tipo_sala + $pesos_tipo_mat); ?>" />
+        </td>
+        <td></td>
+    </tr>
+    <input type="hidden" id="subtotal_pesos_<?PHP echo $i ?>" value="<?PHP echo ($pesos_suma + $pesos_tipo_sala + $pesos_tipo_mat) ?>" />
+    <input type="hidden" id="subtotal_u_<?PHP echo $i ?>" value="<?PHP echo number_format(($Servicios_Lista[0]['suma'] + $tipo_sala[0]['suma'] + $tipo_mat[0]['suma']), 2, '.', '') ?>" />
+    <input type="hidden" id="porcentajes_<?PHP echo $i ?>" value="" />
+    <?php
+    //$Total = $Total + (round($pesos_suma1 + $ajuste, -2) + round($pesos_tipo_sala + $ajuste, -2) + round($pesos_tipo_mat + $ajuste, -2));
+    $Total = $Total + (round($pesos_suma1 + $pesos_tipo_sala + $pesos_tipo_mat + $ajuste, -2));
+
+           endfor;  #For Fin.
+    ?>
+    <tr>
+        <td style="text-align: right"
+            <?PHP
+            //VERIFICAMOS SI EL TARIFARIO ES SOAT O ISS PARA MODIFICAR LA CANTIDAD DE COLUMNAS DE LA TABLA
+            if ($_REQUEST["Tarifario"] == "SOAT") {
+                echo 'colspan="7"';
+            }
+            if ($_REQUEST["Tarifario"] == "ISS") {
+                if ($_REQUEST["anio"] == "2001") {
+                    echo 'colspan="6"';
+                }
+                if ($_REQUEST["anio"] == "2004") {
+                    echo 'colspan="5"';
+                }
+            }
+            ?>>
+            <strong> Total: </strong>
+        </td>
+        <td style="text-align: center">
+            <div id="cel_Total">
+                <?PHP echo "$" . number_format(round($Total + $ajuste, -2)); ?>
+            </div>
+            <input type="hidden" id="Total" value="<?PHP echo $Total; ?>" />
+        </td>
+        <td></td>
+    </tr>
+    <input type="hidden" id="Cadena_2"  />
+    <input type="hidden" id="Index_2" value="<?PHP echo $i ?>" />
+    <input type="hidden" id="Aray_2"  value=""/>
+    <input type="hidden" id="Aray_3"  value=""/>
+    <input type="hidden" id="Cadena" />
+    <input type="hidden" id="conta_multiples" value="<?PHP echo $conta_multiples ?>" />
+
+
+    <?PHP
+    //  VALIDANDO EL TARIFARIO Y AñO CON EL CONVENIO.
+    $paciente_id = explode(':::', $_REQUEST['paciente_id']);
+           $Tarifario = $_REQUEST['Tarifario'];
+           $anio = $_REQUEST['anio'];
+           $anio_smlv = $_REQUEST['anio_smlv'];
+           //PARA LA TABLA convenios
+           //Con convenioid obtener:
+           //nombre_convenio
+           //fecha_in : 	Validar que la fecha de la factura este dentro de las fechas del convenio.
+           //fecha_fin : 	Validar que la fecha de la factura este dentro de las fechas del convenio.
+           //cancel = 	Validar = 0
+           //Tipo_Tarifario: 1->SOAT, 2-> ISS del 2001, 3->ISS 2004 COMPARAR CON EL TARIFARIO DE LA LIQUIDACION
+           //anio:		 año del Tipo del Tarifario, VALIDAR CON EL A�O DE LA LIQUIDACION
+           //Porcentaje:	 0-> es una suma (+)  1-> es una resta (-) TENER EN CUENTA PARA CALCULAR LOS VALORES DE LA FACTURA
+           //Valor_Porcentaje:  valor que se opera segun el porcentaje. % A APLICAR A LOS VALORES DE LA FACTURA.
+
+           //$convenio = $cosult->convenio_paciente($paciente_id[1]);
+           //    echo "<pre>";
+           //    print_r($_REQUEST);
+           //    print_r($convenio);
+           //    echo "</pre>";
+           //    echo $paciente_id[1] ." ";
+           //    echo $Tarifario . " ";
+           //    echo $anio . " ";
+           //    echo $anio_smlv . " ";
+           //    echo $convenio[0]['Tipo_Tarifario'] . " ";
+           //    echo $convenio[0]['anio'] . " ";
+           //    echo $convenio[0]['fecha_in'] . " ";
+           //    echo $convenio[0]['fecha_fin'] . " ";
+           //    echo $fecha_factura;
+
+           $fecha_factura = date("Y-m-d");
+    ?>
+    <input type="hidden" id="convenioid" value="<?PHP echo $convenio[0]['id'] ?>" />
+    <div id="error_tarifario" style="display: none">
+        <span style="color:#F00">.:ERROR AL GENERAR LA FACTURACION:. 
+            <br>
+            PARA EL CONVENIO DEL PACIENTE <?PHP echo $paciente_id[0] ?> NO APLICA EL TARIFARIO 
+            <?PHP
+    if ($Tarifario == "SOAT") {
+        echo $Tarifario . " Y A&#209;O " . $anio_smlv . " SELECCIONADO...";
+    }
+           if ($Tarifario == "ISS") {
+               echo $Tarifario . " " . $anio . " SELECCIONADO...";
+           }
+            ?> 
+        </span>
+        <br>
+        <blink>
+            <span style="color:#F00">VERIFIQUE EL TARIFARIO Y A&#209;O DEL CONVENIO Y LIQUIDE DE NUEVO...</span>
+        </blink>      
+    </div>
+    <div id="error_fecha" style="display: none">
+        <span style="color:#F00">.:ERROR AL GENERAR LA FACTURACION:. 
+            <br>
+            PARA EL CONVENIO DEL PACIENTE <?PHP echo $paciente_id[0] ?> LA FECHA ACTUAL: <?PHP echo date("Y-m-d"); ?> SE ENCUENTRA POR FUERA DE LAS FECHAS DE VIGENCIA.
+        </span>
+        <br>
+        <blink>
+            <span style="color:#F00">VERIFIQUE LOS TERMINOS Y CONDICIONES DEL CONVENIO Y LIQUIDE DE NUEVO...</span>
+        </blink>      
+    </div>
+    <?PHP
+    if ($Tarifario == "SOAT") {
+        $Tarifario1 = 1;
+        $anio = $anio_smlv;
+    } elseif ($Tarifario == "ISS" && $anio == "2001") {
+        $Tarifario1 = 2;
+    } elseif ($Tarifario == "ISS" && $anio == "2004") {
+        $Tarifario1 = 3;
+    } else {
+    ?>
+    <input type="hidden" id="ok_facturar" value="NO" />
+    <?PHP
+    }
+
+
+    if ($Tarifario1 == $convenio[0]['Tipo_Tarifario'] && $anio == $convenio[0]['anio']) {
+        if ($convenio[0]['fecha_in'] < $fecha_factura && $convenio[0]['fecha_fin'] > $fecha_factura) {
+    ?>
+    <input type="hidden" id="ok_fecha" value="SI" />
+    <input type="hidden" id="ok_facturar" value="SI" />
+    <?PHP
+        } else {
+    ?>
+    <input type="hidden" id="ok_facturar" value="NO" />
+    <input type="hidden" id="ok_fecha" value="NO" />
+    <?PHP
+        }
+    } else {
+    ?>
+    <input type="hidden" id="ok_facturar" value="NO" />
+    <?PHP
+    }
+    ?>
+</table>

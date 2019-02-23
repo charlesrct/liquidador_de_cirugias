@@ -1,0 +1,92 @@
+<?php error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); ?>
+
+<?php
+$Dato_p = $_GET['Dato_p'];
+$Resultado1 = explode('###', $Dato_p);
+for ($i = 1; $i < count($Resultado1); $i++) {
+    $Dato_Service = explode('**', $Resultado1[$i]);
+    $Dato_Service1[$i] = $Dato_Service;
+}
+foreach ($Dato_Service1 as $llave => $fila) {
+    $procedimiento[$llave] = $fila[1];
+}
+array_multisort($procedimiento, SORT_ASC, $Dato_Service1);
+$Resultado[0] = " ";
+for ($i = 0; $i < count($Dato_Service1); $i++) {
+    for ($j = 0; $j < count($Dato_Service1[$i]); $j++) {
+        $Resultado[$i + 1] .= $Dato_Service1[$i][$j];
+        if ($j + 1 < count($Dato_Service1[$i])) {
+            $Resultado[$i + 1] .= '**';
+        }
+    }
+}
+//fin orden por valor de los PRODUCTOS
+//**************************************************************\\
+?>
+<hr>
+<table table width="100%" border="0"  cellspacing="0" cellpadding="0" align="center" class="cuerpo_tabla" style="font-size: 12px">
+    <tr>
+        <td class="label">
+            No.
+        </td>
+        <td class="label">
+            Codigo
+        </td>
+        <td class="label">
+            Descripcion
+        </td>
+        <td class="label">
+            Cantidad
+        </td>
+        <td  class="label">
+            Precio U.
+        </td>
+        <td  class="label">
+            Precio Total.
+        </td>
+        <td class="label">
+            <div id="elimina_productos"><button type="button" id="Elimina" onclick="Elimina_p();" class="BotonGeneral" >Eliminar<img src="images/EliminarJVM.png" width="20" border="0" /></button><br></div><input type="checkbox" id="ID_Todos_p_del" name="ID_Todos_p_del" title="Selecciona Todos..."  onclick="Selecionar_Todo(4);" />
+        </td>
+    </tr>
+    <?php
+//*************************************************************\\
+    for ($i = 1; $i < count($Resultado); $i++) {
+        $Dato_Productos = explode('**', $Resultado[$i]);
+//        echo "<pre>****************************";
+//        print_r($Dato_Productos);
+//        echo "</pre>";
+        ?>
+        <tr>
+            <td style="text-align: center"><?PHP echo $i ?>
+                <input type="hidden" id="Lista_P_id_<?PHP echo $i ?>" value="<?PHP echo $Dato_Productos[0] ?>" />
+            </td>
+            <td style="text-align: center">
+                <?PHP echo $Dato_Productos[1] ?>
+                <input type="hidden" id="Lista_P_code_<?PHP echo $i ?>" value="<?PHP echo $Dato_Productos[1] ?>" />
+            </td>
+            <td>
+                <?PHP echo $Dato_Productos[2] ?>
+                <input type="hidden" id="Lista_P_descrip_<?PHP echo $i ?>" value="<?PHP echo $Dato_Productos[2] ?>" />
+            </td>
+            <td style="text-align: center">
+                <?PHP echo $Dato_Productos[3] ?>
+                <input type="hidden" id="Lista_P_cantidad_<?PHP echo $i ?>" value="<?PHP echo $Dato_Productos[3] ?>" />
+            </td>
+            <td id="lista_valor_up_cell_<?PHP echo $i ?>">
+                <?PHP echo "$" . number_format((int) $Dato_Productos[4], 0, '.', ',') ?>  
+            </td>
+            <td id="lista_valor_totalp_cell_<?PHP echo $i ?>">
+                <?PHP echo "$" . number_format((int) $Dato_Productos[5], 0, '.', ',') ?>
+            </td>
+            <td style="text-align: center">
+                <input type="checkbox" class="Eliminar_prod" id="Eliminar_prod_<?PHP echo $i ?>" />
+            </td>
+        <input type="hidden" id="lista_valor_up_<?PHP echo $i ?>" value="<?PHP echo (int) $Dato_Productos[4] ?>" >
+        <input type="hidden" id="lista_valor_totalp_<?PHP echo $i ?>" value="<?PHP echo (int) $Dato_Productos[5] ?>" >
+
+        <?PHP
+    }
+    ?>
+    <input type="hidden" id="Index_lista_p" value="<?PHP echo $i ?>" >
+    <input type="hidden" id="Aray_lista_p" value=" " >
+</table>

@@ -1,0 +1,92 @@
+<?php error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); ?>
+<hr>
+<table table width="100%" border="0"  cellspacing="0" cellpadding="0" align="center">
+    <tr>
+        <td>
+            <input type="button" id="Add" value="Adicionar." onclick="Add_Producto();" class="button" />
+        </td>
+        <td >
+            PRODUCTOS
+        </td>
+        <td style="width: 200px;">
+            &nbsp;
+        </td>
+    </tr>
+</table>
+<table table width="100%" border="0"  cellspacing="0" cellpadding="0" align="center" class="cuerpo_tabla" style="font-size: 12px">
+    <tr>
+        <td class="label">
+            No.
+        </td>
+        <td class="label">
+            Codigo
+        </td>
+        <td class="label">
+            Descripcion
+        </td>
+        <td class="label">
+            Agregar.<input type="checkbox" id="ID_Todos_p" name="ID_Todos_p" title="Selecciona Todos..."  onclick="Selecionar_Todo(3);" />
+        </td>
+        <td class="label">
+            Cantidad
+        </td>
+        <td class="label">
+            Precio U.
+        </td>
+        <td class="label">
+            Precio Total.
+        </td>
+    </tr>
+    <?php
+//*************************************************************\\
+    $Dato = $_REQUEST['Dato'];
+    $convenioid = $_REQUEST['convenioid'];
+    $cosult = new liquidadorController();
+    $Productos = $cosult->get_productos($convenioid, $Dato);
+    if (empty($Productos)) {
+        echo '<span style="color:#F00">..::ERROR::.. DEBE DIGITAR UN PRODUCTO VALIDO...</span>
+        <blink>
+            <span style="color:#F00">O... NO HAY PRODUCTOS...</span>
+        </blink>';
+        die;
+    }
+
+    for ($i = 0; $i < count($Productos); $i++) {
+        ?>
+        <tr>
+            <td style="text-align: center"><?PHP echo $i + 1 ?>
+                <input type="hidden" id="Productos_id_<?PHP echo $i ?>" value="<?PHP echo $Productos[$i]['itemid'] ?>" />
+            </td>
+            <td style="text-align: center">
+                <?PHP echo $Productos[$i]['itemcode'] ?>
+                <input type="hidden" id="Productos_code_<?PHP echo $i ?>" value="<?PHP echo $Productos[$i]['itemcode'] ?>" />
+            </td>
+            <td>
+                <?PHP echo $Productos[$i]['catalogdescription'] ?>
+                <input type="hidden" id="Productos_descrip_<?PHP echo $i ?>" value="<?PHP echo $Productos[$i]['catalogdescription'] ?>" />
+            </td>
+            <td style="text-align: center">
+                <input type="checkbox" class="Product" id="Valido_Prod_<?PHP echo $i ?>" class="All" onclick="Valida_Exite_p(<?PHP echo $i ?>);" />
+            </td>
+            <td>
+                <input type="text" id="cantidad_prod_<?PHP echo $i ?>" value="" onblur="Calculo_Precio(<?PHP echo $i ?>);" onkeyup ="return SoloNumeros(this)" class="cajas" style="text-align:center" maxlength="4" size="6">
+            </td>
+            <td id="valor_up_cell_<?PHP echo $i ?>">
+                <?PHP echo "$" . number_format((int) $Productos[$i]['precio_venta'], 0, '.', ',') ?>  
+            </td>
+            <td id="valor_totalp_cell_<?PHP echo $i ?>">
+                <?PHP echo "$" . number_format((int) $Productos[$i]['precio_venta'], 0, '.', ',') ?>
+            </td>
+        <input type="hidden" id="valor_up_<?PHP echo $i ?>" value="<?PHP echo (int) $Productos[$i]['precio_venta'] ?>" >
+        <input type="hidden" id="valor_totalp_<?PHP echo $i ?>" value="<?PHP echo (int) $Productos[$i]['precio_venta'] ?>" >
+        <?PHP
+    }
+    ?>
+    </tr>
+</table>
+<input type="hidden" id="Index_p" value="<?PHP echo $i ?>" >
+<?php
+//    echo "<pre>";
+//    print_r($Productos);
+//    echo "</pre>";
+?>

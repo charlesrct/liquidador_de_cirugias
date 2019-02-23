@@ -1,0 +1,470 @@
+<?php error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); ?>
+<table width="100%" border="0"  cellspacing="0" cellpadding="0" align="center">
+    <tr>
+        <td>
+            <input type="button" id="Add" value="Adicionar." onclick="Add_Service();" class="button" />
+        </td>
+        <td>
+            SERVICIOS: TARIFARIO  <?php echo ' ' . $_REQUEST["Tarifario"]; ?>
+        </td>
+    </tr>
+</table>
+<table width="100%" class="cuerpo_tabla"  cellspacing="0" cellpadding="0" align="center" style="font-size: 12px">
+    <tr>
+        <td class="label">
+            No.
+        </td>
+        <td class="label">
+            Codigo
+        </td>
+        <td class="label" style="min-width: 150px;">
+            Descripcion
+        </td>
+        <?php
+        if ($_REQUEST["Tarifario"] == "SOAT") {
+        ?>
+        <td class="label">
+            Grupo Quirurg.
+        </td>
+        <?php
+        }
+        ?>
+        <td class="label">
+            Especialista
+        </td>
+        <?php
+        if ($_REQUEST["Tarifario"] == "ISS" && $_REQUEST["anio"] == "2004") {
+        ?>
+        <td class="label">
+            Medico Odontologo General
+        </td>
+        <?php
+        } else {
+        ?>
+        <td class="label">
+            Anestesiologo
+        </td>
+        <td class="label">
+            Ayudante
+        </td>
+        <?php
+        }
+        ?>
+        <td class="label">
+            Suma    
+        </td>
+        <td class="label">
+            Agregar.<input type="checkbox" id="ID_Todos" name="ID_Todos" title="Selecciona Todos..."  onclick="Selecionar_Todo(0);" />
+        </td>
+    </tr>
+    <?php
+    $Servicios = $this->dato_servicio;
+    if (empty($Servicios)) {
+    ?>
+    <tr>
+        <td colspan="7">  
+            <span style="color:#F00">.:ERROR:.<blink>NO HAY SERVICIOS...</blink></span>
+        </td>
+    </tr>
+    <?php
+    }
+
+    //*******************************+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //echo('<pre>');
+    //CAMBIANDO COMA POR PUNTO DECIMAL
+    //for ($i = 0; $i < count($this->dato_servicio); $i++){
+    //    $Servicios[$i] = str_replace(',', '.', $Servicios[$i]);
+    //}
+    //print_r($Servicios);
+
+    for ($i = 0; $i < count($this->dato_servicio); $i++):
+    ?>
+    <tr>
+        <td style="text-align: center">
+            <?PHP echo $i + 1 ?>
+            <input type="hidden" id="Services_id_<?PHP echo $i ?>" value="<?PHP echo $Servicios[$i]['idliquidador_tarifario'] ?>" />
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $Servicios[$i]['codigo']; ?>
+        </td>
+        <td>
+            <?PHP echo $Servicios[$i]['descripcion']; ?>
+        </td>
+        <?php
+        if ($_REQUEST["Tarifario"] == "SOAT") {
+        ?>
+        <td style="text-align: center">
+            <?PHP echo $Servicios[$i]['grupo_quirurgico']; ?>
+        </td>
+        <?php } ?>
+        <td style="text-align: center">
+            <div id="especialista_cell_<?PHP echo $i ?>">
+                <?PHP echo $Servicios[$i]['especialista'] ?>
+            </div>
+            <input type="hidden" id="especialista_<?PHP echo $i ?>" value="<?PHP echo number_format($Servicios[$i]['especialista'], 2, '.', '') ?>" />
+            <input type="hidden" id="tempo_especialista_<?PHP echo $i ?>" value="<?PHP echo ($Servicios[$i]['especialista']); ?>" />
+        </td>
+
+        <?php
+        if ($_REQUEST["Tarifario"] == "ISS" && $_REQUEST["anio"] == "2004") {
+        ?>
+        <!-- CELDA RESULTADO MEDICO ODONTOLOGO GENERAL-->
+        <td style="text-align: center">
+            <div id="cel_med_odonto_general_<?PHP echo $i ?>">
+                <?PHP
+            echo $Servicios[$i]['med_general_odontologo'];
+            if ($Servicios[$i]['med_general_odontologo'] != 0) {
+                ?>
+                <input type="checkbox" id="chek_med_general_<?PHP echo $i ?>"  class="All" onclick="chek_med_gen(<?PHP echo $i ?>);" />
+                <?php
+            }
+                ?>
+            </div>
+            <input type="hidden" id="med_odonto_general_<?PHP echo $i ?>" value="<?PHP echo '0'; ?>" />
+            <input type="hidden" id="tempo_med_odonto_general_<?PHP echo $i ?>" value="<?PHP echo ($Servicios[$i]['med_general_odontologo']); ?>" />
+        </td>
+        <?php
+        } else {
+        ?>
+        <td style="text-align: center">
+            <?PHP echo $Servicios[$i]['anestesiologo'] ?>
+            <input type="hidden" id="anestesiologo_<?PHP echo $i ?>" value="<?PHP echo number_format($Servicios[$i]['anestesiologo'], 2, '.', '') ?>" />
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $Servicios[$i]['ayudante'] ?>
+            <input type="hidden" id="anestesiologo_<?PHP echo $i ?>" value="<?PHP echo number_format($Servicios[$i]['ayudante'], 2, '.', '') ?>" />
+        </td>     
+        <?php
+        }
+        ?>
+        <td style="text-align: center">
+            <div id="suma_u_cell_<?PHP echo $i ?>">
+                <?PHP
+    if ($_REQUEST["Tarifario"] == "ISS" && $_REQUEST["anio"] == "2001" && $Servicios[$i]['unidad_liquidacion'] == "PESOS") {
+        echo "$" . number_format($Servicios[$i]['suma'], 0, '.', ',');
+    } else {
+        echo $Servicios[$i]['suma'];
+    }
+                ?>
+            </div>
+            <input type="hidden" id="suma_u_<?PHP echo $i ?>" value="<?PHP echo number_format($Servicios[$i]['suma'], 2, '.', '') ?>" />
+            <input type="hidden" id="tempo_suma_u_<?PHP echo $i ?>" value="<?PHP echo ($Servicios[$i]['suma']); ?>" />
+        </td>        
+
+        <td style="text-align: center">
+            <input type="checkbox" id="Valido_<?PHP echo $i ?>"  class="All" onclick="Valida_Exite(<?PHP echo $i ?>);" />
+        </td>
+    </tr>
+
+    <!--*************************************************
+SI ES TARIFARIO ISS 2001 MOSTRAMOS LA SALA Y LOS MATERIALES SEGUN EL RANGO DE UVR y UNIDAD DE LIQUIDACION DIFERENTE DE PESOS-->
+    <?php
+    $cosult = new liquidadorController();
+
+                   if ($_REQUEST["Tarifario"] == "ISS" && $_REQUEST["anio"] == "2001" && $Servicios[$i]['unidad_liquidacion'] == "UVR") {
+                       //VALIDANDO RANGO DE UVR PARA SALA TARIFARIO ISS 2001
+                       if ($Servicios[$i]['suma'] <= 20) {
+                           $cod_quirofano = 'S23101'; //valor = 12,890
+                       } elseif ($Servicios[$i]['suma'] > 20 && $Servicios[$i]['suma'] <= 30) {
+                           $cod_quirofano = 'S23102'; //valor = 26,790
+                       } elseif ($Servicios[$i]['suma'] > 30 && $Servicios[$i]['suma'] <= 40) {
+                           $cod_quirofano = 'S23201'; //valor = 44,270
+                       } elseif ($Servicios[$i]['suma'] > 40 && $Servicios[$i]['suma'] <= 50) {
+                           $cod_quirofano = 'S23202'; //valor = 55,605
+                       } elseif ($Servicios[$i]['suma'] > 50 && $Servicios[$i]['suma'] <= 60) {
+                           $cod_quirofano = 'S23203'; //valor = 81,175
+                       } elseif ($Servicios[$i]['suma'] > 60 && $Servicios[$i]['suma'] <= 70) {
+                           $cod_quirofano = 'S23204'; //valor = 96,520
+                       } elseif ($Servicios[$i]['suma'] > 70 && $Servicios[$i]['suma'] <= 80) {
+                           $cod_quirofano = 'S23205'; //valor = 114,830
+                       } elseif ($Servicios[$i]['suma'] > 80 && $Servicios[$i]['suma'] <= 90) {
+                           $cod_quirofano = 'S23301'; //valor = 129,655
+                       } elseif ($Servicios[$i]['suma'] > 90 && $Servicios[$i]['suma'] <= 100) {
+                           $cod_quirofano = 'S23302'; //valor = 144,645
+                       } elseif ($Servicios[$i]['suma'] > 100 && $Servicios[$i]['suma'] <= 110) {
+                           $cod_quirofano = 'S23303'; //valor = 148,545
+                       } elseif ($Servicios[$i]['suma'] > 110 && $Servicios[$i]['suma'] <= 130) {
+                           $cod_quirofano = 'S23304'; //valor = 153,075
+                       } elseif ($Servicios[$i]['suma'] > 130 && $Servicios[$i]['suma'] <= 150) {
+                           $cod_quirofano = 'S23305'; //valor = 186,410
+                       } elseif ($Servicios[$i]['suma'] > 150 && $Servicios[$i]['suma'] <= 170) {
+                           $cod_quirofano = 'S23306'; //valor = 204,700
+                       } elseif ($Servicios[$i]['suma'] > 170 && $Servicios[$i]['suma'] <= 200) {
+                           $cod_quirofano = 'S23307'; //valor = 246,970
+                       } elseif ($Servicios[$i]['suma'] > 200 && $Servicios[$i]['suma'] <= 230) {
+                           $cod_quirofano = 'S23308'; //valor = 279,405
+                       } elseif ($Servicios[$i]['suma'] > 230 && $Servicios[$i]['suma'] <= 260) {
+                           $cod_quirofano = 'S23309'; //valor = 318,255
+                       } elseif ($Servicios[$i]['suma'] > 260 && $Servicios[$i]['suma'] <= 290) {
+                           $cod_quirofano = 'S23310'; //valor = 356,455
+                       } elseif ($Servicios[$i]['suma'] > 290 && $Servicios[$i]['suma'] <= 320) {
+                           $cod_quirofano = 'S23311'; //valor = 401,015
+                       } elseif ($Servicios[$i]['suma'] > 320 && $Servicios[$i]['suma'] <= 350) {
+                           $cod_quirofano = 'S23312'; //valor = 445,560
+                       } elseif ($Servicios[$i]['suma'] > 350 && $Servicios[$i]['suma'] <= 380) {
+                           $cod_quirofano = 'S23313'; //valor = 471,015
+                       } elseif ($Servicios[$i]['suma'] > 380 && $Servicios[$i]['suma'] <= 410) {
+                           $cod_quirofano = 'S23314'; //valor = 503,460
+                       } elseif ($Servicios[$i]['suma'] > 410 && $Servicios[$i]['suma'] <= 450) {
+                           $cod_quirofano = 'S23315'; //valor = 548,020
+                       } else {
+                           $cod_quirofano = '0'; //Procedimiento sin sala para Servicios Intrahospitalarios Quirofanos
+                       }
+
+                       $tipo_sala = $cosult->consultar_quirofano($cod_quirofano);
+
+                       if ($cod_quirofano != '0') {  //Si se cumple mostramos la sala en pantalla.
+    ?>
+    <!--MOSTRAMOS EN PANTALLA LA SALA PARA TARIFARIO ISS-->
+    <tr>
+        <td style="text-align: center">
+            <?PHP //echo $i + 1      ?>
+            <input type="hidden" id="Sala_id_<?PHP echo $i ?>" value="<?PHP echo $tipo_sala[0]['idliquidador_tarifario'] ?>" />
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $tipo_sala[0]['codigo']; ?>
+        </td>
+        <td>
+            <?PHP echo $tipo_sala[0]['tipo'] . " " . $tipo_sala[0]['descripcion']; ?>
+        </td>
+        <td style="text-align: center">
+            0
+        </td>
+        <td style="text-align: center">
+            0
+        </td>
+        <td style="text-align: center">
+            0
+        </td>        
+        <td style="text-align: center">
+            <?PHP echo "$" . number_format($tipo_sala[0]['suma'], 0, '.', ',') ?>
+            <input type="hidden" id="anestesiologo_<?PHP echo $i ?>" value="<?PHP echo number_format($tipo_sala[0]['suma'], 2, '.', '') ?>" />
+        </td>   
+        <td>
+        </td>
+    </tr>
+    <?php
+                       } //fin del if para mostrar la sala.
+                       //<!--MOSTRAMOS EN PANTALLA LOS MATERIALES PARA TARIFARIO ISS 2001 SEGUN EL RANGO DE UVR-->
+                       //VALIDANDO RANGO DE UVR PARA SALA TARIFARIO ISS 2001
+                       if ($Servicios[0]['suma'] <= 20) {
+                           $cod_materiales = 'S55101'; //valor = 31,000
+                       } elseif ($Servicios[0]['suma'] > 20 && $Servicios[0]['suma'] <= 30) {
+                           $cod_materiales = 'S55102'; //valor = 32,005
+                       } elseif ($Servicios[0]['suma'] > 30 && $Servicios[0]['suma'] <= 40) {
+                           $cod_materiales = 'S55103'; //valor = 33,110
+                       } elseif ($Servicios[0]['suma'] > 40 && $Servicios[0]['suma'] <= 50) {
+                           $cod_materiales = 'S55104'; //valor = 45,305
+                       } elseif ($Servicios[0]['suma'] > 50 && $Servicios[0]['suma'] <= 60) {
+                           $cod_materiales = 'S55105'; //valor = 57,410
+                       } elseif ($Servicios[0]['suma'] > 60 && $Servicios[0]['suma'] <= 70) {
+                           $cod_materiales = 'S55106'; //valor = 82,315
+                       } elseif ($Servicios[0]['suma'] > 70 && $Servicios[0]['suma'] <= 80) {
+                           $cod_materiales = 'S55107'; //valor = 88,610
+                       } elseif ($Servicios[0]['suma'] > 80 && $Servicios[0]['suma'] <= 90) {
+                           $cod_materiales = 'S55108'; //valor = 95,015
+                       } elseif ($Servicios[0]['suma'] > 90 && $Servicios[0]['suma'] <= 100) {
+                           $cod_materiales = 'S55109'; //valor = 109,205
+                       } elseif ($Servicios[0]['suma'] > 100 && $Servicios[0]['suma'] <= 110) {
+                           $cod_materiales = 'S55110'; //valor = 123,310
+                       } elseif ($Servicios[0]['suma'] > 110 && $Servicios[0]['suma'] <= 130) {
+                           $cod_materiales = 'S55111'; //valor = 131,115
+                       } elseif ($Servicios[0]['suma'] > 130 && $Servicios[0]['suma'] <= 150) {
+                           $cod_materiales = 'S55112'; //valor = 140,120
+                       } elseif ($Servicios[0]['suma'] > 150 && $Servicios[0]['suma'] <= 170) {
+                           $cod_materiales = 'S55113'; //valor = 152,910
+                       } else {
+                           $cod_materiales = '0'; //Procedimiento sin materiales para Servicios Intrahospitalarios Materiales Sutura
+                       }
+                       if ($cod_materiales != '0') {  //Si se cumple mostramos los materiales en pantalla.
+                           $tipo_mat = $cosult->consultar_mat($cod_materiales);
+    ?>
+
+    <tr>
+        <td style="text-align: center">
+            <?PHP //echo $i + 1     ?>
+            <input type="hidden" id="Materiales_id_<?PHP echo $i ?>" value="<?PHP echo $tipo_mat[0]['idliquidador_tarifario'] ?>" />
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $tipo_mat[0]['codigo'] ?>
+        </td>
+        <td>
+            <?PHP echo $tipo_mat[0]['tipo'] . " " . $tipo_mat[0]['descripcion'] ?>
+        </td>
+        <td style="text-align: center">
+            0
+        </td>
+        <td style="text-align: center">
+            0
+        </td>
+        <td style="text-align: center">
+            0
+        </td>        
+        <td style="text-align: center">
+            <?PHP echo "$" . number_format($tipo_mat[0]['suma'], 0, '.', ',') ?>
+            <input type="hidden" id="anestesiologo_<?PHP echo $i ?>" value="<?PHP echo number_format($tipo_mat[0]['suma'], 2, '.', '') ?>" />
+        </td> 
+        <td>
+        </td>
+    </tr>
+    <?php
+                       }//Find e materiales
+                   }//Fin SALA Y MATERIALES tarifario ISS 2001.....
+    ?>
+    <!--******FIN SALA Y MATERIALES TARIFARIO ISS 2001 -->
+    <!--*************************************************
+SI ES TARIFARIO ISS 2004 LOS MATERIALES SEGUN EL RANGO DE UVR y UNIDAD DE LIQUIDACION DIFERENTE DE PESOS-->
+    <?php
+    if ($_REQUEST["Tarifario"] == "ISS" && $_REQUEST["anio"] == "2004" && $Servicios[0]['tipo'] == 'Procedimientos Medico-Quirurgicos') {
+        //<!--MOSTRAMOS EN PANTALLA LOS MATERIALES PARA TARIFARIO ISS 2004 SEGUN EL RANGO DE UVR-->
+        //VALIDANDO RANGO DE UVR PARA SALA TARIFARIO ISS 2001
+        if ($Servicios[0]['suma'] <= 421) {
+            $cod_materiales = 'S55101'; //valor = 326
+        } elseif ($Servicios[0]['suma'] > 421 && $Servicios[0]['suma'] <= 810) {
+            $cod_materiales = 'S55102'; //valor = 336
+        } elseif ($Servicios[0]['suma'] > 810 && $Servicios[0]['suma'] <= 1103) {
+            $cod_materiales = 'S55103'; //valor = 348
+        } elseif ($Servicios[0]['suma'] > 1103 && $Servicios[0]['suma'] <= 1577) {
+            $cod_materiales = 'S55104'; //valor = 476
+        } elseif ($Servicios[0]['suma'] > 1577 && $Servicios[0]['suma'] <= 1933) {
+            $cod_materiales = 'S55105'; //valor = 603
+        } elseif ($Servicios[0]['suma'] > 1933 && $Servicios[0]['suma'] <= 3056) {
+            $cod_materiales = 'S55106'; //valor = 864
+        } elseif ($Servicios[0]['suma'] > 3056 && $Servicios[0]['suma'] <= 3542) {
+            $cod_materiales = 'S55107'; //valor = 930
+        } elseif ($Servicios[0]['suma'] > 3542 && $Servicios[0]['suma'] <= 3990) {
+            $cod_materiales = 'S55108'; //valor = 998
+        } elseif ($Servicios[0]['suma'] > 3990 && $Servicios[0]['suma'] <= 4440) {
+            $cod_materiales = 'S55109'; //valor = 1147
+        } elseif ($Servicios[0]['suma'] > 4440 && $Servicios[0]['suma'] <= 4768) {
+            $cod_materiales = 'S55110'; //valor = 1295
+        } elseif ($Servicios[0]['suma'] > 4768 && $Servicios[0]['suma'] <= 5388) {
+            $cod_materiales = 'S55111'; //valor = 1377
+        } elseif ($Servicios[0]['suma'] > 5388 && $Servicios[0]['suma'] <= 6324) {
+            $cod_materiales = 'S55112'; //valor = 1471
+        } elseif ($Servicios[0]['suma'] > 6324 && $Servicios[0]['suma'] <= 7095) {
+            $cod_materiales = 'S55113'; //valor = 1606
+        } else {
+            $cod_materiales = '0'; //Procedimiento sin materiales
+        }
+        if ($cod_materiales != '0') {  //Si se cumple mostramos los materiales en pantalla.
+            $tipo_mat = $cosult->consultar_mat_2004($cod_materiales);
+    ?>
+    <tr>
+        <td style="text-align: center">
+            <?PHP //echo $i + 1   ?>
+            <input type="hidden" id="Materiales_id_<?PHP echo $i ?>" value="<?PHP echo $tipo_mat[0]['idliquidador_tarifario'] ?>" />
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $tipo_mat[0]['codigo'] ?>
+        </td>
+        <td>
+            <?PHP echo $tipo_mat[0]['tipo'] . " " . $tipo_mat[0]['descripcion']; ?>
+        </td>
+        <td style="text-align: center">
+            0
+        </td>
+        <td style="text-align: center">
+            0
+        </td>        
+        <td style="text-align: center">
+            <?PHP echo ($tipo_mat[0]['suma']); ?>
+            <input type="hidden" id="anestesiologo_<?PHP echo $i ?>" value="<?PHP echo number_format($tipo_mat[0]['suma'], 2, '.', '') ?>" />
+        </td> 
+        <td>
+        </td>
+    </tr>
+    <?php
+        }//Fin de materiales
+    }//Fin MATERIALES tarifario ISS 2004.....
+    ?>
+    <!--******FIN MATERIALES TARIFARIO ISS 2004 NO INCLUYE SALAS -->
+    <!--*************************************************
+SI ES TARIFARIO SOAT MOSTRAMOS LA SALA Y LOS MATERIALES DEL GRUPO QUIRURGICO-->
+    <?php
+    if ($_REQUEST["Tarifario"] == "SOAT" && ($Servicios[0]['especialista'] + $Servicios[0]['anestesiologo'] + $Servicios[0]['ayudante']) != 0) {
+        list($tipo_mat, $tipo_sala) = $cosult->consultar_soat($Servicios[0]['grupo_quirurgico']);
+    ?>
+    <!--MOSTRAMOS EN PANTALLA LA SALA DEL GRUPO QUIRURGICO PARA TARIFARIO SOAT-->
+    <tr>
+        <td style="text-align: center">
+            <?PHP //echo $i + 1   ?>
+            <input type="hidden" id="Sala_id_<?PHP echo $i ?>" value="<?PHP echo $tipo_sala[0]['idliquidador_tarifario'] ?>" />
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $tipo_sala[0]['codigo'] ?>
+        </td>
+        <td>
+            <?PHP echo $tipo_sala[0]['descripcion'] ?>
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $tipo_sala[0]['grupo_quirurgico'] ?>
+            <input type="hidden" id="Precio_<?PHP echo $i ?>" value="<?PHP echo number_format(str_replace(',', '.', $Servicios[0]['precio']), 2, '.', '') ?>" />
+        </td>
+        <td style="text-align: center">
+            0
+        </td>
+        <td style="text-align: center">
+            0
+        </td>
+        <td style="text-align: center">
+            0
+        </td>        
+        <td style="text-align: center">
+            <?PHP echo $tipo_sala[0]['suma'] ?>
+            <input type="hidden" id="anestesiologo_<?PHP echo $i ?>" value="<?PHP echo number_format(str_replace(',', '.', $tipo_sala[0]['suma']), 2, '.', '') ?>" />
+        </td>   
+        <td>
+        </td>
+    </tr>
+
+    <!--MOSTRAMOS EN PANTALLA LOS MATERIALES DEL GRUPO QUIRURGICO PARA TARIFARIO SOAT-->
+    <?PHP
+        //VALIDAMOS SI EL PROCEDIMIENTO TIENE MATERIALES
+        if ($tipo_mat[0]['idliquidador_tarifario'] != "") {
+    ?>
+    <tr>
+        <td style="text-align: center">
+            <?PHP //echo $i + 1    ?>
+            <input type="hidden" id="Materiales_id_<?PHP echo $i ?>" value="<?PHP echo $tipo_mat[0]['idliquidador_tarifario'] ?>" />
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $tipo_mat[0]['codigo'] ?>
+        </td>
+        <td>
+            <?PHP echo $tipo_mat[0]['descripcion'] ?>
+        </td>
+        <td style="text-align: center">
+            <?PHP echo $tipo_mat[0]['grupo_quirurgico'] ?>
+            <input type="hidden" id="Precio_<?PHP echo $i ?>" value="<?PHP echo number_format(str_replace(',', '.', $tipo_sala[0]['suma']), 2, '.', '') ?>" />
+        </td>
+        <td style="text-align: center">
+            0
+        </td>
+        <td style="text-align: center">
+            0
+        </td>
+        <td style="text-align: center">
+            0
+        </td>        
+        <td style="text-align: center">
+            <?PHP echo $tipo_mat[0]['suma'] ?>
+            <input type="hidden" id="anestesiologo_<?PHP echo $i ?>" value="<?PHP echo number_format($tipo_mat[0]['suma'], 2, '.', '') ?>" />
+        </td> 
+        <td>
+        </td>
+    </tr>
+    <?php
+        } else {
+    ?>
+    <input type="hidden" id="Materiales_id_<?PHP echo $i ?>" value="<?PHP echo $tipo_mat[0]['idliquidador_tarifario'] ?>" />
+    <?php
+        }//fIN MATERIALES
+    }//Fin SALA Y MATERIALES tarifario SOAT.....
+    ?>
+    <input type="hidden" id="subtotal_u_<?PHP echo $i ?>" value="<?PHP echo number_format(($Servicios[0]['suma'] + $tipo_sala[0]['suma'] + $tipo_mat[0]['suma']), 2, '.', '') ?>" />
+    <?php
+    endfor;
+    ?>
+    <input type="hidden" id="Index" value="<?PHP echo $i ?>" />
+</table>
